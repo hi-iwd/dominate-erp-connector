@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Dominate\ErpConnector\Api\ConnectionInterface" type="Dominate\ErpConnector\Model\Connection"/>
+    <preference for="Dominate\ErpConnector\Api\InventorySyncInterface" type="Dominate\ErpConnector\Model\InventorySync"/>
+    <preference for="Dominate\ErpConnector\Api\FulfillmentSyncInterface" type="Dominate\ErpConnector\Model\FulfillmentSync"/>
+    <preference for="Dominate\ErpConnector\Api\RefundSyncInterface" type="Dominate\ErpConnector\Model\RefundSync"/>
+    <preference for="Dominate\ErpConnector\Api\ProductImportInterface" type="Dominate\ErpConnector\Model\ProductImport"/>
+</config>

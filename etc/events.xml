@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_save_commit_after">
+        <observer name="dominate_erpconnector_order_export" instance="Dominate\ErpConnector\Observer\OrderPlaceObserver" />
+    </event>
+    <event name="sales_order_shipment_save_commit_after">
+        <observer name="dominate_erpconnector_shipment_export" instance="Dominate\ErpConnector\Observer\ShipmentSaveObserver" />
+    </event>
+    <event name="sales_order_creditmemo_save_commit_after">
+        <observer name="dominate_erpconnector_creditmemo_export" instance="Dominate\ErpConnector\Observer\CreditmemoSaveObserver" />
+    </event>
+    <event name="customer_save_after_data_object">
+        <observer name="dominate_erpconnector_customer_export" instance="Dominate\ErpConnector\Observer\CustomerSaveObserver" />
+    </event>
+    <event name="customer_address_save_after">
+        <observer name="dominate_erpconnector_customer_address_update" instance="Dominate\ErpConnector\Observer\CustomerAddressSaveObserver" />
+    </event>
+    <event name="customer_address_delete_after">
+        <observer name="dominate_erpconnector_customer_address_delete" instance="Dominate\ErpConnector\Observer\CustomerAddressDeleteObserver" />
+    </event>
+    <event name="customer_delete_after">
+        <observer name="dominate_erpconnector_customer_delete" instance="Dominate\ErpConnector\Observer\CustomerDeleteObserver" />
+    </event>
+</config>

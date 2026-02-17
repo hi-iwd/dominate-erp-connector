@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- Check connection endpoint -->
+    <route url="/V1/dominate/erp-connector/check-connection" method="POST">
+        <service class="Dominate\ErpConnector\Api\ConnectionInterface" method="check"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Inventory sync endpoint -->
+    <route url="/V1/dominate/erp-connector/inventory" method="POST">
+        <service class="Dominate\ErpConnector\Api\InventorySyncInterface" method="sync"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Fulfillment sync endpoint -->
+    <route url="/V1/dominate/erp-connector/fulfillment" method="POST">
+        <service class="Dominate\ErpConnector\Api\FulfillmentSyncInterface" method="sync"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Refund sync endpoint -->
+    <route url="/V1/dominate/erp-connector/refund" method="POST">
+        <service class="Dominate\ErpConnector\Api\RefundSyncInterface" method="sync"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Product import endpoint -->
+    <route url="/V1/dominate/erp-connector/product-import" method="POST">
+        <service class="Dominate\ErpConnector\Api\ProductImportInterface" method="import"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+</routes>
+
