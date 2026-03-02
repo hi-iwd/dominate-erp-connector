@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Backend/etc/system_file.xsd">
     <system>
+        <tab id="dominate" translate="label" sortOrder="999">
+            <label>Dominate</label>
+        </tab>
         <section id="dominate_erpconnector" translate="label" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Dominate ERP Connector</label>
             <tab>dominate</tab>
