@@ -185,15 +185,7 @@ class OrderPlaceObserver implements ObserverInterface
                 ],
             ],
 
-            'totals' => [
-                'grand'     => (float) $order->getGrandTotal(),
-                'subtotal'  => (float) $order->getSubtotal(),
-                'tax'       => (float) $order->getTaxAmount(),
-                'shipping'  => (float) $order->getShippingAmount(),
-                'discount'  => (float) abs($order->getDiscountAmount()),
-                'invoiced'  => (float) $order->getTotalInvoiced(),
-                'refunded'  => (float) $order->getTotalRefunded(),
-            ],
+            'totals' => $this->getOrderTotals($order),
 
             'payment' => [
                 'method'          => $payment ? $payment->getMethod() : null,

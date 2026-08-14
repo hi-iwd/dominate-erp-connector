@@ -80,6 +80,44 @@ trait AddressFormatter
     }
 
     /**
+     * Extract common order context (header fields + totals) for shipment/creditmemo payloads.
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return array
+     */
+    private function getOrderContext($order): array
+    {
+        return [
+            'entity_id'    => (int) $order->getId(),
+            'increment_id' => $order->getIncrementId(),
+            'status'       => $order->getStatus(),
+            'state'        => $order->getState(),
+            'created_at'   => $order->getCreatedAt(),
+            'updated_at'   => $order->getUpdatedAt(),
+            'totals'       => $this->getOrderTotals($order),
+        ];
+    }
+
+    /**
+     * Extract order totals.
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return array
+     */
+    private function getOrderTotals($order): array
+    {
+        return [
+            'grand'     => (float) $order->getGrandTotal(),
+            'subtotal'  => (float) $order->getSubtotal(),
+            'tax'       => (float) $order->getTaxAmount(),
+            'shipping'  => (float) $order->getShippingAmount(),
+            'discount'  => (float) abs($order->getDiscountAmount()),
+            'invoiced'  => (float) $order->getTotalInvoiced(),
+            'refunded'  => (float) $order->getTotalRefunded(),
+        ];
+    }
+
+    /**
      * Get meta information for payload.
      *
      * @return array

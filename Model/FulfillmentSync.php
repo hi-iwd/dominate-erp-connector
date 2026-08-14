@@ -8,6 +8,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\ShipOrderInterface;
 use Magento\Sales\Api\Data\ShipmentItemCreationInterfaceFactory;
 use Magento\Sales\Api\Data\ShipmentTrackCreationInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentCreationArgumentsInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentCreationArgumentsExtensionInterfaceFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -45,6 +47,16 @@ class FulfillmentSync implements FulfillmentSyncInterface
     private ShipmentTrackCreationInterfaceFactory $shipmentTrackFactory;
 
     /**
+     * @var ShipmentCreationArgumentsInterfaceFactory
+     */
+    private ShipmentCreationArgumentsInterfaceFactory $argumentsFactory;
+
+    /**
+     * @var ShipmentCreationArgumentsExtensionInterfaceFactory
+     */
+    private ShipmentCreationArgumentsExtensionInterfaceFactory $argumentsExtensionFactory;
+
+    /**
      * @var SearchCriteriaBuilder
      */
     private SearchCriteriaBuilder $searchCriteriaBuilder;
@@ -62,33 +74,39 @@ class FulfillmentSync implements FulfillmentSyncInterface
     /**
      * FulfillmentSync constructor.
      *
-     * @param ApiAuthValidator                      $apiAuthValidator
-     * @param OrderRepositoryInterface              $orderRepository
-     * @param ShipOrderInterface                    $shipOrder
-     * @param ShipmentItemCreationInterfaceFactory  $shipmentItemFactory
-     * @param ShipmentTrackCreationInterfaceFactory $shipmentTrackFactory
-     * @param SearchCriteriaBuilder                 $searchCriteriaBuilder
-     * @param LoggerInterface                       $logger
-     * @param SyncContext                           $syncContext
+     * @param ApiAuthValidator                                    $apiAuthValidator
+     * @param OrderRepositoryInterface                            $orderRepository
+     * @param ShipOrderInterface                                  $shipOrder
+     * @param ShipmentItemCreationInterfaceFactory                $shipmentItemFactory
+     * @param ShipmentTrackCreationInterfaceFactory               $shipmentTrackFactory
+     * @param ShipmentCreationArgumentsInterfaceFactory           $argumentsFactory
+     * @param ShipmentCreationArgumentsExtensionInterfaceFactory  $argumentsExtensionFactory
+     * @param SearchCriteriaBuilder                               $searchCriteriaBuilder
+     * @param LoggerInterface                                     $logger
+     * @param SyncContext                                         $syncContext
      */
     public function __construct(
-        ApiAuthValidator                      $apiAuthValidator,
-        OrderRepositoryInterface              $orderRepository,
-        ShipOrderInterface                    $shipOrder,
-        ShipmentItemCreationInterfaceFactory  $shipmentItemFactory,
-        ShipmentTrackCreationInterfaceFactory $shipmentTrackFactory,
-        SearchCriteriaBuilder                 $searchCriteriaBuilder,
-        LoggerInterface                       $logger,
-        SyncContext                           $syncContext
+        ApiAuthValidator                                    $apiAuthValidator,
+        OrderRepositoryInterface                            $orderRepository,
+        ShipOrderInterface                                  $shipOrder,
+        ShipmentItemCreationInterfaceFactory                $shipmentItemFactory,
+        ShipmentTrackCreationInterfaceFactory               $shipmentTrackFactory,
+        ShipmentCreationArgumentsInterfaceFactory           $argumentsFactory,
+        ShipmentCreationArgumentsExtensionInterfaceFactory  $argumentsExtensionFactory,
+        SearchCriteriaBuilder                               $searchCriteriaBuilder,
+        LoggerInterface                                     $logger,
+        SyncContext                                         $syncContext
     ) {
-        $this->apiAuthValidator    = $apiAuthValidator;
-        $this->orderRepository     = $orderRepository;
-        $this->shipOrder           = $shipOrder;
-        $this->shipmentItemFactory = $shipmentItemFactory;
-        $this->shipmentTrackFactory = $shipmentTrackFactory;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->logger              = $logger;
-        $this->syncContext         = $syncContext;
+        $this->apiAuthValidator        = $apiAuthValidator;
+        $this->orderRepository         = $orderRepository;
+        $this->shipOrder               = $shipOrder;
+        $this->shipmentItemFactory     = $shipmentItemFactory;
+        $this->shipmentTrackFactory    = $shipmentTrackFactory;
+        $this->argumentsFactory        = $argumentsFactory;
+        $this->argumentsExtensionFactory = $argumentsExtensionFactory;
+        $this->searchCriteriaBuilder   = $searchCriteriaBuilder;
+        $this->logger                  = $logger;
+        $this->syncContext             = $syncContext;
     }
 
     /**
@@ -171,6 +189,22 @@ class FulfillmentSync implements FulfillmentSyncInterface
                     // Build tracking information
                     $tracks = $this->buildTracks($shipmentData);
 
+                    // Build MSI source-aware arguments when source_code is provided
+                    $arguments = null;
+                    $sourceCode = $shipmentData['source_code'] ?? null;
+
+                    if ($sourceCode) {
+                        $arguments = $this->argumentsFactory->create();
+                        $extAttrs = $this->argumentsExtensionFactory->create();
+                        $extAttrs->setSourceCode($sourceCode);
+                        $arguments->setExtensionAttributes($extAttrs);
+
+                        $this->logger->info('[Dominate_ErpConnector] Using MSI source for shipment', [
+                            'order_increment_id' => $orderIncrementId,
+                            'source_code' => $sourceCode,
+                        ]);
+                    }
+
                     // Create shipment using ShipOrderInterface
                     $shipmentId = $this->shipOrder->execute(
                         (int) $order->getEntityId(),
@@ -180,7 +214,7 @@ class FulfillmentSync implements FulfillmentSyncInterface
                         null,  // No comment
                         $tracks,
                         [],    // No packages
-                        null   // No arguments
+                        $arguments
                     );
 
                     $results[] = [

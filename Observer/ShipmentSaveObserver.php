@@ -98,6 +98,13 @@ class ShipmentSaveObserver implements ObserverInterface
         $billingAddress = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
 
+        // Extract MSI source_code from shipment extension attributes (Magento 2.3+)
+        $sourceCode = null;
+        $extAttributes = $shipment->getExtensionAttributes();
+        if ($extAttributes !== null && method_exists($extAttributes, 'getSourceCode')) {
+            $sourceCode = $extAttributes->getSourceCode();
+        }
+
         $tracks = [];
         foreach ($shipment->getAllTracks() as $track) {
             $tracks[] = [
@@ -121,30 +128,15 @@ class ShipmentSaveObserver implements ObserverInterface
             'meta'    => $this->getMeta(),
 
             'shipment' => [
-                'entity_id'     => (int) $shipment->getId(),
-                'increment_id'  => $shipment->getIncrementId(),
-                'created_at'    => $shipment->getCreatedAt(),
-                'state'         => $shipment->getState(),
+                'entity_id'      => (int) $shipment->getId(),
+                'increment_id'   => $shipment->getIncrementId(),
+                'created_at'     => $shipment->getCreatedAt(),
+                'state'          => $shipment->getState(),
                 'package_weight' => (float) $shipment->getTotalWeight(),
+                'source_code'    => $sourceCode,
             ],
 
-            'order' => [
-                'entity_id'      => (int) $order->getId(),
-                'increment_id'   => $order->getIncrementId(),
-                'status'         => $order->getStatus(),
-                'state'          => $order->getState(),
-                'created_at'     => $order->getCreatedAt(),
-                'updated_at'     => $order->getUpdatedAt(),
-                'totals' => [
-                    'grand'     => (float) $order->getGrandTotal(),
-                    'subtotal'  => (float) $order->getSubtotal(),
-                    'tax'       => (float) $order->getTaxAmount(),
-                    'shipping'  => (float) $order->getShippingAmount(),
-                    'discount'  => (float) abs($order->getDiscountAmount()),
-                    'invoiced'  => (float) $order->getTotalInvoiced(),
-                    'refunded'  => (float) $order->getTotalRefunded(),
-                ],
-            ],
+            'order' => $this->getOrderContext($order),
 
             'carrier' => [
                 'code'            => $shipment->getOrder()->getShippingMethod() ? explode('_', $shipment->getOrder()->getShippingMethod())[0] : null,

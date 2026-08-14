@@ -133,23 +133,7 @@ class CreditmemoSaveObserver implements ObserverInterface
                 ],
             ],
 
-            'order' => [
-                'entity_id'      => (int) $order->getId(),
-                'increment_id'   => $order->getIncrementId(),
-                'status'         => $order->getStatus(),
-                'state'          => $order->getState(),
-                'created_at'     => $order->getCreatedAt(),
-                'updated_at'     => $order->getUpdatedAt(),
-                'totals' => [
-                    'grand'     => (float) $order->getGrandTotal(),
-                    'subtotal'  => (float) $order->getSubtotal(),
-                    'tax'       => (float) $order->getTaxAmount(),
-                    'shipping'  => (float) $order->getShippingAmount(),
-                    'discount'  => (float) abs($order->getDiscountAmount()),
-                    'invoiced'  => (float) $order->getTotalInvoiced(),
-                    'refunded'  => (float) $order->getTotalRefunded(),
-                ],
-            ],
+            'order' => $this->getOrderContext($order),
 
             'payment_method' => $payment ? $payment->getMethod() : null,
 

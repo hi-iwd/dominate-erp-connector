@@ -9,7 +9,7 @@ namespace Dominate\ErpConnector\Service\ProductImport;
 class ConfigurableImportContext
 {
     /**
-     * Variant mappings configured for the integration (up to 3 dimensions).
+     * Variant mappings configured for the integration.
      *
      * @var array
      */

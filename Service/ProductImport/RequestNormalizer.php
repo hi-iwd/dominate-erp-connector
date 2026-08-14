@@ -61,20 +61,7 @@ class RequestNormalizer
             ];
         }
 
-        // Validate variant mappings (max 3, required fields)
-        if (count($variantMappings) > 3) {
-            $this->logger->warning('[Dominate_ErpConnector] Product import failed: too_many_variant_mappings');
-            return [
-                'update_existing' => $updateExisting,
-                'variant_mappings' => $variantMappings,
-                'items' => $items,
-                'error' => [
-                    'Error' => false,
-                    'results' => $this->markAllItemsFailed($items, 'Maximum 3 variant dimensions allowed'),
-                ],
-            ];
-        }
-
+        // Validate variant mappings (required fields)
         foreach ($variantMappings as $mapping) {
             if (empty($mapping['store_attribute_code']) || empty($mapping['erp_field_id'])) {
                 $this->logger->warning('[Dominate_ErpConnector] Product import failed: invalid_variant_mapping');
